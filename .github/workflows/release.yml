@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build-macos:
     runs-on: macos-latest
@@ -27,7 +30,7 @@ jobs:
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       - name: Build
-        run: wails build -platform darwin/${{ matrix.arch }} -o "CT Kollekten"
+        run: wails build -platform darwin/${{ matrix.arch }}
 
       - name: Zip app bundle
         run: |
@@ -39,3 +42,31 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/bin/ct_kollekten-macos-${{ matrix.label }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build
+        run: wails build -platform windows/amd64
+
+      - name: Zip executable
+        run: |
+          dir build\bin\
+          Compress-Archive -Path "build\bin\*.exe" -DestinationPath "build\bin\ct_kollekten-windows.zip"
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/bin/ct_kollekten-windows.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
