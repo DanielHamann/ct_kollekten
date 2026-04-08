@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            label: intel
+          - arch: arm64
+            label: apple-silicon
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build
+        run: wails build -platform darwin/${{ matrix.arch }} -o "CT Kollekten"
+
+      - name: Zip app bundle
+        run: |
+          cd build/bin
+          zip -r "ct_kollekten-macos-${{ matrix.label }}.zip" "CT Kollekten.app"
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/bin/ct_kollekten-macos-${{ matrix.label }}.zip
