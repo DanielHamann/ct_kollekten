@@ -31,8 +31,9 @@ jobs:
 
       - name: Zip app bundle
         run: |
+          ls build/bin/
           cd build/bin
-          zip -r "ct_kollekten-macos-${{ matrix.label }}.zip" "CT Kollekten.app"
+          zip -r "ct_kollekten-macos-${{ matrix.label }}.zip" *.app
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
