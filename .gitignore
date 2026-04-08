@@ -1,0 +1,9 @@
+build/
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+.DS_Store
+wailsjs/
+frontend/wailsjs/

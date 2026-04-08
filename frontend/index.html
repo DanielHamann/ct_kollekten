@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CT Kollekten</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── Tab bar ─────────────────────────────────────────────────── -->
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="wiki">Wiki Import</button>
+  <button class="tab-btn" data-tab="gottesdienste">Gottesdienste</button>
+  <span class="tab-spacer"></span>
+  <button class="tab-btn gear-btn" data-tab="settings" id="gear-btn" title="Einstellungen">⚙</button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Tab: Wiki Import                                              -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-wiki">
+  <div class="panel">
+
+    <!-- Load button -->
+    <div class="card">
+      <div class="section-header">Kollektenplan aus Wiki laden</div>
+      <div class="toolbar">
+        <button id="btn-load-wiki" class="primary-btn">Aus Wiki laden</button>
+        <div id="wiki-loading" class="loading hidden">
+          <span class="spinner"></span> Lade Wiki…
+        </div>
+        <span id="wiki-status" class="status-msg"></span>
+      </div>
+      <div id="wiki-error" class="error-box hidden"></div>
+    </div>
+
+    <!-- Preview table -->
+    <div id="wiki-preview-wrap" class="hidden">
+      <div class="section-header" style="margin-bottom:8px">
+        Vorschau
+        <span class="badge" id="wiki-count"></span>
+      </div>
+      <div class="table-wrap" style="max-height:220px">
+        <table>
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Kollektengrund</th>
+              <th>Betrag</th>
+            </tr>
+          </thead>
+          <tbody id="wiki-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Options sync section -->
+    <div id="sync-section" class="card hidden">
+      <div class="section-header">Optionen mit ChurchTools abgleichen</div>
+
+      <div class="toolbar">
+        <button id="btn-preview-options">Aktuellen Stand abrufen</button>
+        <div id="preview-loading" class="loading hidden">
+          <span class="spinner"></span> Lade Optionen…
+        </div>
+      </div>
+
+      <div id="options-preview" class="hidden">
+        <div class="options-columns">
+          <div>
+            <div class="options-col-header">Bereits in ChurchTools</div>
+            <div class="options-list" id="existing-options-list">
+              <div class="options-empty">–</div>
+            </div>
+          </div>
+          <div>
+            <div class="options-col-header">Neue Liste (letzte 15)</div>
+            <div class="options-list" id="new-options-list">
+              <div class="options-empty">Keine neuen Einträge</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="sync-status" class="hidden"></div>
+
+        <div class="toolbar">
+          <button id="btn-sync" class="primary-btn" disabled>
+            Optionen in ChurchTools ersetzen
+          </button>
+          <span id="sync-msg" class="status-msg"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Tab: Gottesdienste                                            -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-gottesdienste">
+  <div class="panel">
+
+    <!-- Filters -->
+    <div class="card">
+      <div class="date-controls">
+        <label>Von</label>
+        <input type="date" id="date-from" />
+        <label>Bis</label>
+        <input type="date" id="date-to" />
+        <div class="quick-btns">
+<button id="btn-rolling">–2M / +1M</button>
+          <button id="btn-this-year">Dieses Jahr</button>
+          <button id="btn-q1">Q1</button>
+          <button id="btn-q2">Q2</button>
+          <button id="btn-q3">Q3</button>
+          <button id="btn-q4">Q4</button>
+        </div>
+        <button id="btn-load-events" class="primary-btn">Laden</button>
+      </div>
+
+      <div id="events-loading" class="loading hidden">
+        <span class="spinner"></span>
+        <span id="events-loading-text">Lade Gottesdienste…</span>
+      </div>
+      <div id="events-error" class="error-box hidden"></div>
+    </div>
+
+    <!-- Auto-fill bar (shown when wiki data is available) -->
+    <div id="autofill-bar" class="info-box hidden">
+      <span id="autofill-msg" class="status-msg"></span>
+      <button id="btn-save-all" class="primary-btn hidden" style="margin-left:8px">Alle empfohlenen speichern</button>
+    </div>
+
+    <!-- Events table -->
+    <div id="events-table-wrap" class="table-wrap hidden">
+      <table id="events-table">
+        <thead>
+          <tr>
+            <th style="width:175px">Datum</th>
+            <th>Gottesdienst</th>
+            <th style="width:260px">Kollektengrund</th>
+            <th style="width:110px">Betrag</th>
+            <th style="width:80px"></th>
+          </tr>
+        </thead>
+        <tbody id="events-tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="events-empty" class="status-msg hidden">Keine Ereignisse im gewählten Zeitraum.</div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Tab: Einstellungen                                            -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-settings">
+  <div class="panel">
+
+    <div class="info-box">
+      Gib hier die URL deiner ChurchTools-Instanz und deinen API-Schlüssel ein.<br>
+      Der API-Schlüssel wird sicher im System-Schlüsselbund gespeichert.
+    </div>
+
+    <div class="card">
+      <div class="form-row">
+        <label>ChurchTools URL</label>
+        <input type="text" id="ct-url" placeholder="https://meine-gemeinde.church.tools" />
+      </div>
+      <div class="form-row">
+        <label>API-Schlüssel</label>
+        <input type="password" id="api-key" placeholder="••••••••••••••••" />
+      </div>
+      <div class="toolbar" style="padding-left:162px">
+        <button class="primary-btn" id="btn-save-settings">Speichern</button>
+        <button id="btn-test-connection">Verbindung testen</button>
+        <span id="settings-status" class="status-msg"></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Setup overlay (shown on first run / missing credentials)      -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div id="setup-overlay" class="hidden">
+  <div class="setup-card">
+
+    <div class="setup-header">
+      <div class="setup-icon">⛪</div>
+      <h1>Willkommen bei CT Kollekten</h1>
+      <p>Gib zuerst die URL deiner ChurchTools-Instanz und deinen Login-Token ein, um loszulegen.</p>
+    </div>
+
+    <div class="setup-body">
+
+      <div class="form-row">
+        <label>ChurchTools-URL</label>
+        <input type="text" id="setup-ct-url" placeholder="https://meine-gemeinde.church.tools" />
+      </div>
+
+      <div class="setup-instructions">
+        <strong>So findest du deinen Login-Token:</strong>
+        <ol>
+          <li>Melde dich in ChurchTools an</li>
+          <li>Klicke oben rechts auf dein Profilbild → <em>Mein Profil</em></li>
+          <li>Wechsle zum Reiter <em>Sicherheit</em></li>
+          <li>Klicke auf <em>Login-Token anzeigen</em> und kopiere den Token</li>
+        </ol>
+      </div>
+
+      <div class="form-row">
+        <label>Login-Token</label>
+        <div class="token-row">
+          <input type="password" id="setup-api-key" placeholder="••••••••••••••••" />
+          <button type="button" id="setup-toggle-token" class="icon-btn" title="Token anzeigen/verbergen">👁</button>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        ⚠ Mit deinem Login-Token hat man Zugriff auf dein Benutzerkonto mitsamt allen ChurchTools-Daten. Gib ihn niemals weiter.
+      </div>
+
+      <div class="toolbar" style="justify-content:flex-end; margin-top:4px">
+        <button class="primary-btn" id="setup-btn-save">Speichern &amp; loslegen</button>
+        <span id="setup-status" class="status-msg"></span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="wailsjs/runtime/runtime.js"></script>
+<script src="wailsjs/go/main/App.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

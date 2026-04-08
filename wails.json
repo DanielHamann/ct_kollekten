@@ -1,0 +1,12 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "ct_kollekten",
+  "outputfilename": "CT Kollekten",
+  "frontend:dir": "./frontend",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:watcher": "",
+  "author": {
+    "name": "Daniel Hamann"
+  }
+}
